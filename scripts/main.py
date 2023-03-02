@@ -9,34 +9,12 @@ from modules import script_callbacks
 
 from basicsr.utils.download_util import load_file_from_url
 
-body_estimation = None
-
-def pil2cv(in_image):
-  out_image = np.array(in_image, dtype=np.uint8)
-
-  if out_image.shape[2] == 3:
-      out_image = cv2.cvtColor(out_image, cv2.COLOR_RGB2BGR)
-  return out_image
-
-def candidate2li(li):
-  res = []
-  for x, y, *_ in li:
-    res.append([x, y])
-  return res
-
-def subset2li(li):
-  res = []
-  for r in li:
-    for c in r:
-      res.append(c)
-  return res
-
 class Script(scripts.Script):
   def __init__(self) -> None:
     super().__init__()
 
   def title(self):
-    return "Hand Poser"
+    return "Depth Library"
 
   def show(self, is_img2img):
     return scripts.AlwaysVisible
@@ -70,13 +48,13 @@ def on_ui_tabs():
           send_output = gr.Button(value="Send to ControlNet")
 
 
-    width.change(None, [width, height], None, _js="(w, h) => {resizeCanvas(w, h)}")
-    height.change(None, [width, height], None, _js="(w, h) => {resizeCanvas(w, h)}")
-    png_output.click(None, [], None, _js="savePNG")
-    bg_input.click(None, [], None, _js="addBackground")
-    add.click(None, [png_input_area], None, _js="(path) => {addImg(path)}")
-    send_output.click(None, [], None, _js="sendImage")
-    reset_btn.click(None, [], None, _js="resetCanvas")
+    width.change(None, [width, height], None, _js="(w, h) => {depth_resizeCanvas(w, h)}")
+    height.change(None, [width, height], None, _js="(w, h) => {depth_resizeCanvas(w, h)}")
+    png_output.click(None, [], None, _js="depth_savePNG")
+    bg_input.click(None, [], None, _js="depth_addBackground")
+    add.click(None, [png_input_area], None, _js="(path) => {depth_addImg(path)}")
+    send_output.click(None, [], None, _js="depth_sendImage")
+    reset_btn.click(None, [], None, _js="depth_resetCanvas")
 
   return [(depth_lib, "Depth Library", "depth_lib")]
 

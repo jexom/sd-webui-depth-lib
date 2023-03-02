@@ -4,18 +4,19 @@ fabric.Object.prototype.borderColor = '#108ce6';
 fabric.Object.prototype.cornerSize = 10;
 fabric.Object.prototype.lockRotation = false;
 
-let count = 0;
-let executed = false;
+let depth_obj = {
+    // width, height
+    resolution: [512, 512]
+}
 
-let lockMode = false;
-const undo_history = [];
-function gradioApp() {
+let depth_executed = false;
+function depth_gradioApp() {
     const elems = document.getElementsByTagName('gradio-app')
     const gradioShadowRoot = elems.length == 0 ? null : elems[0].shadowRoot
     return !!gradioShadowRoot ? gradioShadowRoot : document;
 }
 
-function calcResolution(resolution){
+function depth_calcResolution(resolution){
     const width = resolution[0]
     const height = resolution[1]
     const viewportWidth = window.innerWidth / 2.25;
@@ -24,11 +25,11 @@ function calcResolution(resolution){
     return {width: width * ratio, height: height * ratio}
 }
 
-function resizeCanvas(width, height){
+function depth_resizeCanvas(width, height){
     const elem = depth_lib_elem;
     const canvas = depth_lib_canvas;
 
-    let resolution = calcResolution([width, height])
+    let resolution = depth_calcResolution([width, height])
 
     canvas.setWidth(width);
     canvas.setHeight(height);
@@ -40,7 +41,7 @@ function resizeCanvas(width, height){
     elem.parentElement.style.height = resolution["height"] + "px"
 }
 
-function addImg(path){
+function depth_addImg(path){
 	const canvas = depth_lib_canvas;
 	fabric.Image.fromURL(path, function(oImg) {
 		canvas.add(oImg);
@@ -50,7 +51,7 @@ function addImg(path){
 	canvas.requestRenderAll();
 }
 
-function initCanvas(elem){
+function depth_initCanvas(elem){
     const canvas = window.depth_lib_canvas = new fabric.Canvas(elem, {
         backgroundColor: '#000',
         // selection: false,
@@ -60,16 +61,16 @@ function initCanvas(elem){
     window.depth_lib_elem = elem
 
     
-    resizeCanvas(...openpose_obj.resolution)
+    depth_resizeCanvas(...depth_obj.resolution)
 }
 
-function resetCanvas(){
+function depth_resetCanvas(){
     const canvas = depth_lib_canvas;
     canvas.clear()
     canvas.backgroundColor = "#000"
 }
 
-function savePNG(){
+function depth_savePNG(){
     if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0
     depth_lib_canvas.discardActiveObject();
     depth_lib_canvas.renderAll()
@@ -90,7 +91,7 @@ function savePNG(){
     return
 }
 
-function addBackground(){
+function depth_addBackground(){
     const input = document.createElement("input");
     input.type = "file"
     input.accept = "image/*"
@@ -109,7 +110,7 @@ function addBackground(){
     input.click()
 }
 
-function sendImage(){
+function depth_sendImage(){
     if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0
     depth_lib_canvas.discardActiveObject();
     depth_lib_canvas.renderAll()
@@ -118,7 +119,7 @@ function sendImage(){
         const dt = new DataTransfer();
         dt.items.add(file);
         const list = dt.files
-        gradioApp().querySelector("#txt2img_script_container").querySelectorAll("span.transition").forEach((elem) => {
+        depth_gradioApp().querySelector("#txt2img_script_container").querySelectorAll("span.transition").forEach((elem) => {
             if (elem.previousElementSibling.textContent === "ControlNet"){
                 switch_to_txt2img()
                 elem.className.includes("rotate-90") && elem.parentElement.click();
@@ -143,14 +144,14 @@ function sendImage(){
 
 window.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((m) => {
-        if(!executed && gradioApp().querySelector('#depth_lib_canvas')){
-            executed = true;
-            initCanvas(gradioApp().querySelector('#depth_lib_canvas'))
-            // gradioApp().querySelectorAll("#tabs > div > button").forEach((elem) => {
+        if(!depth_executed && depth_gradioApp().querySelector('#depth_lib_canvas')){
+            depth_executed = true;
+            depth_initCanvas(depth_gradioApp().querySelector('#depth_lib_canvas'))
+            // depth_gradioApp().querySelectorAll("#tabs > div > button").forEach((elem) => {
             //     if (elem.innerText === "OpenPose Editor") elem.click()
             // })
             observer.disconnect();
         }
     })
-    observer.observe(gradioApp(), { childList: true, subtree: true })
+    observer.observe(depth_gradioApp(), { childList: true, subtree: true })
 })
