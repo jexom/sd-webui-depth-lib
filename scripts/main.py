@@ -36,8 +36,10 @@ def on_ui_tabs():
           reset_btn = gr.Button(value="Reset")
           bg_input = gr.Button(value="Add Background image")
         with gr.Row():
-          dataset = gr.Examples(examples=os.path.abspath(os.path.join(os.path.dirname(__file__), "../maps")), inputs=[png_input_area],examples_per_page=24,label="Depth Maps")
-          png_input_area.render()
+          with gr.Column(scale=3):
+            dataset = gr.Examples(examples=os.path.abspath(os.path.join(os.path.dirname(__file__), "../maps")), inputs=[png_input_area],examples_per_page=24,label="Depth Maps")
+          with gr.Column(scale=1):
+            png_input_area.render()
 
       with gr.Column():
         # gradioooooo...
