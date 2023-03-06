@@ -11,7 +11,7 @@ Depth map library for use with the [Control Net extension](https://github.com/Mi
 5. Restart WebUI
 
 ## Adding own maps
-To add own depth maps permanently put them in the `extensions/sd_webui-depth-lib/maps` folder
+To add own depth maps permanently put them in the `extensions/sd-webui-depth-lib/maps/<category>` folder where `<category>` is a folder with the name of the category tab you want, see the examle `shapes` folder
 
 ## Attention
 Do not select anything for the Preprocessor in ControlNet.
