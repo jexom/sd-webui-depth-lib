@@ -3,6 +3,7 @@ fabric.Object.prototype.cornerColor = '#108ce6';
 fabric.Object.prototype.borderColor = '#108ce6';
 fabric.Object.prototype.cornerSize = 10;
 fabric.Object.prototype.lockRotation = false;
+fabric.Object.prototype.perPixelTargetFind = true;
 
 let depth_obj = {
     // width, height
@@ -10,10 +11,18 @@ let depth_obj = {
 }
 
 let depth_executed = false;
+let depth_addOpacity = 100;
+let depth_bgColor = "#000";
+
 function depth_gradioApp() {
     const elems = document.getElementsByTagName('gradio-app')
     const gradioShadowRoot = elems.length == 0 ? null : elems[0].shadowRoot
-    return !!gradioShadowRoot ? gradioShadowRoot : document;
+
+    root = !!gradioShadowRoot ? gradioShadowRoot : document;
+
+    let style = document.createElement("style");
+
+    return root;
 }
 
 function depth_calcResolution(resolution){
@@ -27,12 +36,11 @@ function depth_calcResolution(resolution){
 
 function depth_resizeCanvas(width, height){
     const elem = depth_lib_elem;
-    const canvas = depth_lib_canvas;
 
     let resolution = depth_calcResolution([width, height])
 
-    canvas.setWidth(width);
-    canvas.setHeight(height);
+    depth_lib_canvas.setWidth(width);
+    depth_lib_canvas.setHeight(height);
     elem.style.width = resolution["width"] + "px"
     elem.style.height = resolution["height"] + "px"
     elem.nextElementSibling.style.width = resolution["width"] + "px"
@@ -42,17 +50,19 @@ function depth_resizeCanvas(width, height){
 }
 
 function depth_addImg(path){
-	const canvas = depth_lib_canvas;
 	fabric.Image.fromURL(path, function(oImg) {
-		canvas.add(oImg);
-		canvas.discardActiveObject();
-		canvas.setActiveObject(oImg);
+		depth_lib_canvas.add(oImg);
+		depth_lib_canvas.discardActiveObject();
+		depth_lib_canvas.setActiveObject(oImg);
+        oImg.set({
+            opacity: depth_addOpacity
+        });
 	});
-	canvas.requestRenderAll();
+	depth_lib_canvas.requestRenderAll();
 }
 
 function depth_initCanvas(elem){
-    const canvas = window.depth_lib_canvas = new fabric.Canvas(elem, {
+    window.depth_lib_canvas = new fabric.Canvas(elem, {
         backgroundColor: '#000',
         // selection: false,
         preserveObjectStacking: true
@@ -65,9 +75,8 @@ function depth_initCanvas(elem){
 }
 
 function depth_resetCanvas(){
-    const canvas = depth_lib_canvas;
-    canvas.clear()
-    canvas.backgroundColor = "#000"
+    depth_lib_canvas.clear();
+    depth_lib_canvas.backgroundColor = depth_bgColor;
 }
 
 function depth_savePNG(){
@@ -81,11 +90,6 @@ function depth_savePNG(){
         a.click();
         URL.revokeObjectURL(a.href);
     });
-    depth_lib_canvas.getObjects("image").forEach((img) => {
-        img.set({
-            opacity: 1
-        });
-    })
     if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0.5
     depth_lib_canvas.renderAll()
     return
@@ -96,18 +100,21 @@ function depth_addBackground(){
     input.type = "file"
     input.accept = "image/*"
     input.addEventListener("change", function(e){
-        const canvas = depth_lib_canvas
         const file = e.target.files[0];
 		var fileReader = new FileReader();
 		fileReader.onload = function() {
 			var dataUri = this.result;
-            canvas.setBackgroundImage(dataUri, canvas.renderAll.bind(canvas), {
+            depth_lib_canvas.setBackgroundImage(dataUri, depth_lib_canvas.renderAll.bind(depth_lib_canvas), {
                 opacity: 0.5
             });
 		}
 		fileReader.readAsDataURL(file);
     })
     input.click()
+}
+
+function depth_removeBackground() {
+    depth_lib_canvas.setBackgroundImage(0, depth_lib_canvas.renderAll.bind(depth_lib_canvas));
 }
 
 function depth_sendImage(){
@@ -133,13 +140,32 @@ function depth_sendImage(){
             }
         })
     });
-    depth_lib_canvas.getObjects("image").forEach((img) => {
-        img.set({
-            opacity: 1
-        });
-    })
     if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0.5
     depth_lib_canvas.renderAll()
+}
+
+function depth_setBrightness(br) {
+    hex = br.toString(16).padStart(2, "0");
+    depth_bgColor = "#" + hex + hex + hex;
+    depth_lib_canvas.backgroundColor = depth_bgColor;
+    depth_lib_canvas.requestRenderAll();
+}
+
+function depth_setOpacity(op) {
+    depth_addOpacity = op;
+    if (!depth_lib_canvas.getActiveObject()) {
+        return;
+    }
+    for (let i = 0; i < depth_lib_canvas.getActiveObjects().length; i++) {
+        const element = depth_lib_canvas.getActiveObjects()[i];
+        element.opacity = depth_addOpacity;
+    }
+    depth_lib_canvas.requestRenderAll();
+}
+
+function depth_removeSelection() {
+    depth_lib_canvas.remove(...depth_lib_canvas.getActiveObjects());
+    depth_lib_canvas.discardActiveObject().renderAll();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
