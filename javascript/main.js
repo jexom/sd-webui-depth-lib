@@ -117,7 +117,7 @@ function depth_removeBackground() {
     depth_lib_canvas.setBackgroundImage(0, depth_lib_canvas.renderAll.bind(depth_lib_canvas));
 }
 
-function depth_sendImage(){
+function depth_sendImage(index){
     if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0
     depth_lib_canvas.discardActiveObject();
     depth_lib_canvas.renderAll()
@@ -130,9 +130,17 @@ function depth_sendImage(){
             if (elem.previousElementSibling.textContent === "ControlNet"){
                 switch_to_txt2img()
                 elem.className.includes("rotate-90") && elem.parentElement.click();
-                const input = elem.parentElement.parentElement.querySelector("input[type='file']");
-                const button = elem.parentElement.parentElement.querySelector("button[aria-label='Clear']")
-                button && button.click();
+                const tabs = gradioApp().querySelector("#txt2img_script_container").querySelectorAll("#controlnet > div:nth-child(2) > .tabs > .tabitem, #controlnet > div:nth-child(2) > div:not(.tabs)")
+                const tab = tabs[index]
+                if (tab.classList.contains("tabitem")) {
+                    tab.parentElement.firstElementChild.querySelector(`:nth-child(${Number(index) + 1})`).click()
+                }
+                const input = tab.querySelector("input[type='file']")
+                try {
+                    input.previousElementSibling.previousElementSibling.querySelector("button[aria-label='Clear']").click()
+                } catch (e) {
+                    console.error(e)
+                }
                 input.value = "";
                 input.files = list;
                 const event = new Event('change', { 'bubbles': true, "composed": true });
