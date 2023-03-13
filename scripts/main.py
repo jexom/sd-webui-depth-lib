@@ -6,6 +6,7 @@ import gradio as gr
 
 import modules.scripts as scripts
 from modules import script_callbacks
+from modules.shared import opts
 
 from basicsr.utils.download_util import load_file_from_url
 
@@ -55,6 +56,10 @@ def on_ui_tabs():
         with gr.Row():
           png_output = gr.Button(value="Save PNG")
           send_output = gr.Button(value="Send to ControlNet")
+          control_net_max_models_num = 0
+          if hasattr(opts, 'control_net_max_models_num'):
+            control_net_max_models_num = opts.control_net_max_models_num
+          select_target_index = gr.Dropdown([str(i) for i in range(control_net_max_models_num)], label="Send to", value="0", interactive=True, visible=(control_net_max_models_num > 1))
 
 
     width.change(None, [width, height], None, _js="(w, h) => {depth_resizeCanvas(w, h)}")
@@ -66,7 +71,7 @@ def on_ui_tabs():
     bg_remove.click(None, [], None, _js="depth_removeBackground")
     add.click(None, [png_input_area], None, _js="(path) => {depth_addImg(path)}")
     remove.click(None, [], None, _js="depth_removeSelection")
-    send_output.click(None, [], None, _js="depth_sendImage")
+    send_output.click(None, select_target_index, None, _js="(i) => {depth_sendImage(i)}")
     reset_btn.click(None, [], None, _js="depth_resetCanvas")
 
   return [(depth_lib, "Depth Library", "depth_lib")]
