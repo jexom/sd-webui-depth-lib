@@ -117,7 +117,21 @@ function depth_removeBackground() {
     depth_lib_canvas.setBackgroundImage(0, depth_lib_canvas.renderAll.bind(depth_lib_canvas));
 }
 
-function depth_sendImage() {
+function depth_sendImageTxt2Img() {
+    depth_sendImage(
+        '#txt2img_controlnet',
+        switch_to_txt2img,
+    );
+}
+
+function depth_sendImageImg2Img() {
+    depth_sendImage(
+        '#img2img_controlnet',
+        switch_to_img2img,
+    );
+}
+
+function depth_sendImage(controlNetDivId, switchFn) {
     if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0;
     depth_lib_canvas.discardActiveObject();
     depth_lib_canvas.renderAll();
@@ -127,9 +141,9 @@ function depth_sendImage() {
         dt.items.add(file);
         const list = dt.files;
 
-        const divControlNet = depth_gradioApp().querySelector("#txt2img_controlnet");
+        const divControlNet = depth_gradioApp().querySelector(controlNetDivId);
         if (divControlNet) {
-            switch_to_txt2img();
+            switchFn();
 
             // open the ControlNet accordion if it's not already open
             // but give up if it takes longer than 5 secs
@@ -139,10 +153,10 @@ function depth_sendImage() {
                 let waitUntilHasClassOpenCount = 0;
                 const waitUntilHasClassOpen = async () => {
                     waitUntilHasClassOpenCount++;
-                    if (waitUntilHasClassOpenCount > 50) {
-                        return false;
-                    } else if (labelControlNet.classList.contains("open")) {
+                    if (labelControlNet.classList.contains("open")) {
                         return true;
+                    } else if (waitUntilHasClassOpenCount > 50) {
+                        return false;
                     } else {
                         setTimeout(() => waitUntilHasClassOpen(), 100)
                     }
@@ -158,9 +172,10 @@ function depth_sendImage() {
             const event = new Event('change', { 'bubbles': true, "composed": true });
             input.dispatchEvent(event);
         }
+
+        if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0.5
+        depth_lib_canvas.renderAll()
     });
-    if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0.5
-    depth_lib_canvas.renderAll()
 }
 
 function depth_setBrightness(br) {
