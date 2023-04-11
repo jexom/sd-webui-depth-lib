@@ -187,6 +187,42 @@ function depth_removeSelection() {
     depth_lib_canvas.discardActiveObject().renderAll();
 }
 
+function depth_addText() {
+    depth_lib_canvas.add(new fabric.IText('Tap and Type', {
+        left: 50,
+        top: 100,
+        fontFamily: 'arial white',
+        fill: '#FFF',
+        fontSize: 50
+    }));
+    depth_lib_canvas.requestRenderAll();
+}
+
+function depth_setFontFamily(font) {
+    depth_lib_canvas.getActiveObject().set("fontFamily", font)
+    depth_lib_canvas.requestRenderAll();
+}
+
+function depth_setTextAlign(align) {
+    depth_lib_canvas.getActiveObject().set('textAlign', align);
+    depth_lib_canvas.requestRenderAll();
+}
+
+function depth_setTextDecoration(decoration) {
+    if (decoration.indexOf("bold") >= 0) {
+        depth_lib_canvas.getActiveObject().set("fontWeight", "bold");
+    } else {
+        depth_lib_canvas.getActiveObject().set("fontWeight", "");
+    }
+
+    if (decoration.indexOf('italic') >= 0) {
+        depth_lib_canvas.getActiveObject().set("fontStyle", "italic");
+    } else {
+        depth_lib_canvas.getActiveObject().set("fontStyle", "");
+    }
+    depth_lib_canvas.requestRenderAll();
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((m) => {
         if (!depth_executed && depth_gradioApp().querySelector('#depth_lib_canvas')) {

@@ -34,7 +34,13 @@ def on_ui_tabs():
         height = gr.Slider(label="height", minimum=64, maximum=2048, value=512, step=64, interactive=True)
         base = gr.Slider(label="Base Depth", minimum=0, maximum=255, value=0, step=1, interactive=True)
         with gr.Row():
-          add = gr.Button(value="Add", variant="primary")
+          fontFamily = gr.Dropdown(label='Font Family', value="arial", choices=["arial", "comic sans ms", "consolas", "courier new", "georgia", "helvetica", "impact", "myriad pro", "verdana", "webdings", "wingdings"], elem_id="fontFamily")
+          textAlign = gr.Dropdown(label='Text Alignment', value="left", choices=["left", "center", "right", "justify"], elem_id="textAlign")
+        with gr.Row():
+          textDecoration = gr.CheckboxGroup(label="textDecoration", value=[], choices=["bold", "italic"], elem_id="textDecoration")
+        with gr.Row():
+          add = gr.Button(value="Add Map", variant="primary")
+          addText = gr.Button(value="Add Text", variant="primary")
           remove = gr.Button(value="Remove selected")
           reset_btn = gr.Button(value="Reset")
         with gr.Row():
@@ -68,6 +74,11 @@ def on_ui_tabs():
     remove.click(None, [], None, _js="depth_removeSelection")
     send_output.click(None, [], None, _js="depth_sendImage")
     reset_btn.click(None, [], None, _js="depth_resetCanvas")
+
+    addText.click(None, [], None, _js="depth_addText")
+    fontFamily.change(None, [fontFamily], None, _js="(fontFamily) => {depth_setFontFamily(fontFamily)}")
+    textAlign.change(None, [textAlign], None, _js="(textAlign) => {depth_setTextAlign(textAlign)}")
+    textDecoration.change(None, [textDecoration], None, _js="(textDecoration) => {depth_setTextDecoration(textDecoration)}")
 
   return [(depth_lib, "Depth Library", "depth_lib")]
 
