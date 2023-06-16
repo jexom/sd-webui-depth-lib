@@ -26,7 +26,7 @@ class Script(scripts.Script):
     return ()
 
 def on_ui_tabs():
-  png_input_area = gr.Image(label="Selected")
+  png_input_area = gr.Image(label="Selected", elem_id="depth_png_input_area")
   with gr.Blocks(analytics_enabled=False) as depth_lib:
     with gr.Row():
       with gr.Column():
