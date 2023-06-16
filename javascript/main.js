@@ -200,3 +200,13 @@ window.addEventListener('DOMContentLoaded', () => {
     })
     observer.observe(depth_gradioApp(), { childList: true, subtree: true })
 })
+
+onUiLoaded(() => {
+    const app = gradioApp();
+    const examples = app.querySelectorAll('#examples > div.gallery > button.gallery-item')
+    const png_input_area = app.querySelector('#depth_png_input_area')
+    png_input_area.style.backgroundColor = '#e5e7eb';
+    examples.forEach(example => {
+        example.style.backgroundColor = '#e5e7eb';
+    });
+})
