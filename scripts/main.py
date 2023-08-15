@@ -30,8 +30,8 @@ def on_ui_tabs():
   with gr.Blocks(analytics_enabled=False) as depth_lib:
     with gr.Row():
       with gr.Column():
-        width = gr.Slider(label="width", minimum=64, maximum=2048, value=512, step=64, interactive=True)
-        height = gr.Slider(label="height", minimum=64, maximum=2048, value=512, step=64, interactive=True)
+        width = gr.Slider(label="width", elem_id="depth_lib_width", minimum=64, maximum=2048, value=512, step=64, interactive=True)
+        height = gr.Slider(label="height", elem_id="depth_lib_height", minimum=64, maximum=2048, value=512, step=64, interactive=True)
         base = gr.Slider(label="Base Depth", minimum=0, maximum=255, value=0, step=1, interactive=True)
         with gr.Row():
           add = gr.Button(value="Add", variant="primary")
