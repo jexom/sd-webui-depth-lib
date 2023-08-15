@@ -30,8 +30,8 @@ def on_ui_tabs():
   with gr.Blocks(analytics_enabled=False) as depth_lib:
     with gr.Row():
       with gr.Column():
-        width = gr.Slider(label="width", minimum=64, maximum=2048, value=512, step=64, interactive=True)
-        height = gr.Slider(label="height", minimum=64, maximum=2048, value=512, step=64, interactive=True)
+        width = gr.Slider(label="width", elem_id="depth_lib_width", minimum=64, maximum=2048, value=512, step=64, interactive=True)
+        height = gr.Slider(label="height", elem_id="depth_lib_height", minimum=64, maximum=2048, value=512, step=64, interactive=True)
         base = gr.Slider(label="Base Depth", minimum=0, maximum=255, value=0, step=1, interactive=True)
         with gr.Row():
           add = gr.Button(value="Add", variant="primary")
@@ -50,11 +50,11 @@ def on_ui_tabs():
             opacity = gr.Slider(label="Opacity", minimum=0.01, maximum=1, value=1, step=0.01, interactive=True)
 
       with gr.Column():
-        # gradioooooo...
         canvas = gr.HTML('<canvas id="depth_lib_canvas" width="512" height="512" style="margin: 0.25rem; border-radius: 0.25rem; border: 0.5px solid"></canvas><style>#examples .gr-sample-image {background-color: #e5e7eb}</style>')
         with gr.Row():
           png_output = gr.Button(value="Save PNG")
-          send_output = gr.Button(value="Send to ControlNet")
+          send_output_txt2img = gr.Button(value="Send to Txt2Img")
+          send_output_img2img = gr.Button(value="Send to Img2Img")
 
 
     width.change(None, [width, height], None, _js="(w, h) => {depth_resizeCanvas(w, h)}")
@@ -66,7 +66,8 @@ def on_ui_tabs():
     bg_remove.click(None, [], None, _js="depth_removeBackground")
     add.click(None, [png_input_area], None, _js="(path) => {depth_addImg(path)}")
     remove.click(None, [], None, _js="depth_removeSelection")
-    send_output.click(None, [], None, _js="depth_sendImage")
+    send_output_txt2img.click(None, [], None, _js="() => depth_sendImageTxt2Img()")
+    send_output_img2img.click(None, [], None, _js="() => depth_sendImageImg2Img()")
     reset_btn.click(None, [], None, _js="depth_resetCanvas")
 
   return [(depth_lib, "Depth Library", "depth_lib")]
