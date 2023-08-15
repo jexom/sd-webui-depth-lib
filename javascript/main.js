@@ -47,6 +47,11 @@ function depth_resizeCanvas(width, height) {
     elem.nextElementSibling.style.height = resolution["height"] + "px"
     elem.parentElement.style.width = resolution["width"] + "px"
     elem.parentElement.style.height = resolution["height"] + "px"
+
+    document.querySelector('#depth_lib_width input[type=range]').value = width;
+    document.querySelector('#depth_lib_width input[type=number]').value = width;
+    document.querySelector('#depth_lib_height input[type=range]').value = height;
+    document.querySelector('#depth_lib_height input[type=number]').value = height;
 }
 
 function depth_addImg(path) {
@@ -70,6 +75,30 @@ function depth_initCanvas(elem) {
 
     window.depth_lib_elem = elem
 
+    depth_lib_canvas.wrapperEl.addEventListener('drop', function (e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.match('image.*')) {
+                const fileReader = new FileReader();
+                fileReader.onload = function (evt) {
+                    const dataUri = evt.target.result;
+                    const imgObj = new Image();
+                    imgObj.onload = function () {
+                        depth_lib_canvas.setBackgroundImage(dataUri, depth_lib_canvas.renderAll.bind(depth_lib_canvas), {
+                            opacity: 0.5,
+                            width: imgObj.width,
+                            height: imgObj.height,
+                        });
+                        depth_resizeCanvas(imgObj.width, imgObj.height);
+                    }
+                    imgObj.src = dataUri;
+                };
+                fileReader.readAsDataURL(file);
+            }
+        }
+    }, false);
 
     depth_resizeCanvas(...depth_obj.resolution)
 }
@@ -101,14 +130,23 @@ function depth_addBackground() {
     input.accept = "image/*"
     input.addEventListener("change", function (e) {
         const file = e.target.files[0];
-        var fileReader = new FileReader();
-        fileReader.onload = function () {
-            var dataUri = this.result;
-            depth_lib_canvas.setBackgroundImage(dataUri, depth_lib_canvas.renderAll.bind(depth_lib_canvas), {
-                opacity: 0.5
-            });
+        if (file.type.match('image.*')) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (evt) {
+                const dataUri = evt.target.result;
+                const imgObj = new Image();
+                imgObj.onload = function () {
+                    depth_lib_canvas.setBackgroundImage(dataUri, depth_lib_canvas.renderAll.bind(depth_lib_canvas), {
+                        opacity: 0.5,
+                        width: imgObj.width,
+                        height: imgObj.height,
+                    });
+                    depth_resizeCanvas(imgObj.width, imgObj.height);
+                }
+                imgObj.src = dataUri;
+            }
+            fileReader.readAsDataURL(file);
         }
-        fileReader.readAsDataURL(file);
     })
     input.click()
 }
