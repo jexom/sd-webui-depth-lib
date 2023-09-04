@@ -159,6 +159,7 @@ function depth_sendImageTxt2Img() {
     depth_sendImage(
         '#txt2img_controlnet',
         switch_to_txt2img,
+        null,
     );
 }
 
@@ -166,10 +167,11 @@ function depth_sendImageImg2Img() {
     depth_sendImage(
         '#img2img_controlnet',
         switch_to_img2img,
+        '#img2img_controlnet_ControlNet-0_controlnet_same_img2img_checkbox input',
     );
 }
 
-function depth_sendImage(controlNetDivId, switchFn) {
+function depth_sendImage(controlNetDivId, switchFn, uploadIndependentControlImageCheckboxId) {
     if (depth_lib_canvas.backgroundImage) depth_lib_canvas.backgroundImage.opacity = 0;
     depth_lib_canvas.discardActiveObject();
     depth_lib_canvas.renderAll();
@@ -200,6 +202,15 @@ function depth_sendImage(controlNetDivId, switchFn) {
                     }
                 };
                 await waitUntilHasClassOpen();
+            }
+
+            // click the "Upload independent control image" checkbox if needed, then wait 1s for it to open
+            if (uploadIndependentControlImageCheckboxId) {
+                const uploadIndependentControlImageCheckbox = divControlNet.querySelector(uploadIndependentControlImageCheckboxId);
+                if (uploadIndependentControlImageCheckbox && !uploadIndependentControlImageCheckbox.checked) {
+                    uploadIndependentControlImageCheckbox.click();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
 
             const input = divControlNet.querySelector("input[type='file']");
